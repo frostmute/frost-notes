@@ -27,6 +27,26 @@ yarn-error.log*
 *.swp
 *.swo
 
+# Agent / assistant / harness config
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+.aider.conf.yml
+.amazonq/
+.augment/
+.claude/
+.clinerules
+.codex/
+.continue/
+.cursor/
+.gemini/
+.opencode/
+.windsurf/
+.windsurfrules
+.github/copilot-instructions.md
+.github/copilot-setup-steps.yml
+.github/skills/
+
 # OS
 .DS_Store
 Thumbs.db

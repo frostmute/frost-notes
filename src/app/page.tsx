@@ -1,8 +1,10 @@
 "use client";
+import { marked } from "marked";
+import notesData from "../../public/content.json";
 
 import { useMemo, useState } from "react";
 
-const categories = ["All", "AI", "Systems", "Web", "Notes"] as const;
+const categories = ["All", "AI", "Systems", "Design", "Visual", "Notes", "Civic", "Web", "Open Source"] as const;
 type Category = (typeof categories)[number];
 
 type Post = {
@@ -13,81 +15,13 @@ type Post = {
   readTime: string;
   category: Exclude<Category, "All">;
   excerpt: string;
-  body: string[];
+  bodyHtml: string;
   tags: string[];
   accent: string;
 };
+const posts: Post[] = notesData as Post[];
 
-const posts: Post[] = [
-  {
-    slug: "small-models-sharp-tools",
-    title: "Small Models, Sharp Tools",
-    eyebrow: "Field note 001",
-    date: "Sep 20, 2026",
-    readTime: "6 min",
-    category: "AI",
-    excerpt:
-      "A practical note on using focused models, strong context, and tight feedback loops instead of throwing scale at every problem.",
-    body: [
-      "The best agent workflows feel less like autocomplete and more like a careful workshop. You give the model a precise bench, sharp tools, and a small enough part to finish cleanly.",
-      "That means research artifacts, typed interfaces, screenshots, test commands, and explicit acceptance criteria. Context is not a pile of files; context is the shape of the work.",
-      "Small models become surprisingly capable when the environment makes correctness cheap to verify. The loop matters more than the monologue.",
-    ],
-    tags: ["agents", "workflow", "context"],
-    accent: "01",
-  },
-  {
-    slug: "terminal-as-studio",
-    title: "The Terminal as a Creative Studio",
-    eyebrow: "Interface essay",
-    date: "Sep 18, 2026",
-    readTime: "4 min",
-    category: "Systems",
-    excerpt:
-      "A dark-room argument for fast local tools, composable scripts, and interfaces that keep your hands on the keyboard.",
-    body: [
-      "A terminal is not only a place to run commands. It is a sketchbook, a console, a logbook, and a dark studio where tiny instruments can be wired together.",
-      "The magic is not nostalgia. It is latency. A good shell gives immediate pressure against an idea, and immediate pressure is how craft develops taste.",
-      "When the system is scriptable, every repeated annoyance becomes material. You turn friction into a tool, then forget the tool exists.",
-    ],
-    tags: ["unix", "tools", "craft"],
-    accent: "02",
-  },
-  {
-    slug: "designing-with-traces",
-    title: "Designing With Traces",
-    eyebrow: "Reverse engineering",
-    date: "Sep 14, 2026",
-    readTime: "8 min",
-    category: "Web",
-    excerpt:
-      "How screenshots, computed styles, and interaction sweeps turn visual imitation into an auditable engineering process.",
-    body: [
-      "A screenshot tells you what happened once. A trace tells you why it keeps happening. The difference matters when you are rebuilding an interface instead of merely admiring it.",
-      "Computed styles, asset maps, responsive captures, and behavior notes convert taste into evidence. The work stops being a guessing game and becomes a set of falsifiable claims.",
-      "That evidence-first approach is useful even when you are not cloning anything. It teaches you to see layout as a system of constraints rather than a collection of decorations.",
-    ],
-    tags: ["css", "inspection", "visual-qa"],
-    accent: "03",
-  },
-  {
-    slug: "notes-on-quiet-software",
-    title: "Notes on Quiet Software",
-    eyebrow: "Notebook",
-    date: "Sep 10, 2026",
-    readTime: "3 min",
-    category: "Notes",
-    excerpt:
-      "Quiet software explains itself, keeps promises, and gives the user room to think without becoming invisible.",
-    body: [
-      "Quiet software is not plain software. It can be beautiful, opinionated, even theatrical. What makes it quiet is that it does not constantly renegotiate the relationship with the user.",
-      "It keeps state where you expect it, names actions honestly, and makes the next step legible. It treats attention as a finite resource.",
-      "The goal is not minimalism. The goal is composure.",
-    ],
-    tags: ["product", "ux", "taste"],
-    accent: "04",
-  },
-];
+
 
 function BlogNav({ selected, onSelect }: { selected: Category; onSelect: (category: Category) => void }) {
   return (
@@ -147,11 +81,6 @@ function FeaturedPanel({ post }: { post: Post }) {
         <div className="feature-index">{post.accent}</div>
         <h2>{post.title}</h2>
         <p>{post.excerpt}</p>
-        <div className="tag-row">
-          {post.tags.map((tag) => (
-            <span key={tag}>#{tag}</span>
-          ))}
-        </div>
       </div>
     </section>
   );
@@ -162,36 +91,15 @@ function Article({ post }: { post: Post }) {
     <article className="article-panel">
       <header className="article-header">
         <p className="kicker">{post.eyebrow}</p>
-        <h2>{post.title}</h2>
-        <div className="article-meta">
-          <span>{post.date}</span>
-          <span>{post.category}</span>
-          <span>{post.readTime}</span>
+        <div className="article-tags">
+          {post.tags.map((tag) => (
+            <span key={tag}>#{tag}</span>
+          ))}
         </div>
       </header>
 
-      <div className="article-body">
-        {post.body.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-      </div>
+      <div className="article-body" dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />
     </article>
-  );
-}
-
-function NewsletterCard() {
-  return (
-    <section className="newsletter-card">
-      <div>
-        <p className="kicker">Dispatch</p>
-        <h3>Get the next note.</h3>
-        <p>No growth hacks. Just compact essays when there is something worth shipping.</p>
-      </div>
-      <form onSubmit={(event) => event.preventDefault()}>
-        <input aria-label="Email address" placeholder="you@example.com" type="email" />
-        <button type="submit">Subscribe</button>
-      </form>
-    </section>
   );
 }
 
@@ -217,7 +125,6 @@ export default function Home() {
       <section className="reading-pane">
         <FeaturedPanel post={activePost} />
         <Article post={activePost} />
-        <NewsletterCard />
       </section>
     </main>
   );
